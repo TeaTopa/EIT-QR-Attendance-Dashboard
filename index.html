@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student QR Generator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; background: #f4f7f6; padding: 20px; }
+        .card { background: white; padding: 30px; border-radius: 12px; display: inline-block; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        input { padding: 10px; font-size: 16px; width: 80%; margin-bottom: 20px; border: 1px solid #ccc; border-radius: 6px; }
+        #qrcode { margin: 20px auto; display: flex; justify-content: center; }
+        .timer { font-weight: bold; color: #e74c3c; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>Attendance QR Code</h2>
+        <input type="text" id="studentId" placeholder="Enter Student ID (e.g. 050327020077)" />
+        <div id="qrcode"></div>
+        <div class="timer" id="timer">QR refreshes in 5s</div>
+    </div>
+
+    <script>
+        let qrcode = new QRCode(document.getElementById("qrcode"), { width: 200, height: 200 });
+        let timeLeft = 5;
+
+        function generateQR() {
+            const studentId = document.getElementById("studentId").value.trim() || "050327020077";
+            const timestamp = (Date.now() / 1000).toFixed(0);
+            const hash = Math.random().toString(36).substring(2, 8);
+            
+            // Format: STUDENT_ID:TIMESTAMP:HASH
+            const token = `${studentId}:${timestamp}:${hash}`;
+            qrcode.makeCode(token);
+            timeLeft = 5;
+        }
+
+        setInterval(() => {
+            timeLeft--;
+            document.getElementById("timer").innerText = `QR refreshes in ${timeLeft}s`;
+            if (timeLeft <= 0) {
+                generateQR();
+            }
+        }, 1000);
+
+        generateQR();
+    </script>
+</body>
+</html>

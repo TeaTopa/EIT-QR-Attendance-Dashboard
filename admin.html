@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Attendance Dashboard</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #1e1e2f; color: white; padding: 30px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #27293d; border-radius: 8px; overflow: hidden; }
+        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #3d3f58; }
+        th { background: #32354a; color: #00d68f; }
+        .status { background: #00d68f; color: black; padding: 4px 8px; border-radius: 4px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>Live Attendance Logs</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Log ID</th>
+                <th>Student ID</th>
+                <th>Scanned At</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody id="attendance-list">
+            <tr><td colspan="4">Loading logs...</td></tr>
+        </tbody>
+    </table>
+
+    <script type="module">
+        import { supabase } from './supabase.js';
+
+        const listContainer = document.getElementById('attendance-list');
+
+        async function fetchAttendance() {
+            const { data, error } = await supabase.from('attendance').select('*').order('scanned_at', { ascending: false }).limit(20);
+            if (data) {
+                renderLogs(data);
+            }
+        }
+
+        function renderLogs(logs) {
+            listContainer.innerHTML = logs.map(log => `
+                <tr>
+                    <td>${log.id}</td>
+                    <td><strong>${log.student_id}</strong></td>
+                    <td>${new Date(log.scanned_at).toLocaleString()}</td>
+                    <td><span class="status">${log.status}</span></td>
+                </tr>
+            `).join('');
+        }
+
+        // Realtime Subscription: Refresh logs on new scans
+        supabase.channel('schema-db-changes')
+            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'attendance' }, (payload) => {
+                fetchAttendance();
+            })
+            .subscribe();
+
+        fetchAttendance();
+    </script>
+</body>
+</html>
