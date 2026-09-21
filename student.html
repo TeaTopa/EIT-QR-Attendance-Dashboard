@@ -1,1 +1,209 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Attendance Portal</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
+        body { background: #1e1e2f; color: white; display: flex; flex-direction: column; min-height: 100vh; }
+        
+        /* Header Bar */
+        header { background: #27293d; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #3d3f58; }
+        .user-info { font-size: 14px; color: #b0b0c0; }
+        .user-info strong { color: #00d68f; }
+        .logout-btn { background: #ff5555; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+
+        /* Navigation Bar */
+        nav { background: #27293d; display: flex; justify-content: space-around; padding: 10px 0; border-bottom: 1px solid #3d3f58; }
+        nav button { background: none; border: none; color: #8a8a9e; font-size: 15px; font-weight: bold; cursor: pointer; padding: 8px 16px; border-radius: 6px; }
+        nav button.active { color: #00d68f; background: #1e1e2f; }
+
+        /* Container & Tabs */
+        .container { flex: 1; padding: 20px; max-width: 500px; margin: 0 auto; width: 100%; }
+        .tab-content { display: none; background: #27293d; padding: 25px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); text-align: center; }
+        .tab-content.active { display: block; }
+
+        /* Cards & Typography */
+        h2 { color: #00d68f; margin-bottom: 15px; font-size: 20px; }
+        .card { background: #1e1e2f; padding: 15px; border-radius: 8px; margin-bottom: 12px; text-align: left; border-left: 4px solid #00d68f; }
+        .card p { font-size: 13px; color: #b0b0c0; margin-bottom: 4px; }
+        .card h3 { font-size: 18px; color: #ffffff; }
+
+        /* QR Code Styling */
+        #qrcode { margin: 20px auto; display: flex; justify-content: center; background: white; padding: 15px; border-radius: 8px; width: fit-content; }
+        .timer { font-weight: bold; color: #e74c3c; margin-top: 10px; font-size: 14px; }
+
+        /* History Table */
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #3d3f58; font-size: 14px; }
+        th { color: #00d68f; }
+        .status-badge { background: #00d68f; color: black; padding: 2px 6px; border-radius: 4px; font-size: 12px; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <!-- Top User Bar -->
+    <header>
+        <div class="user-info">Logged in as: <strong id="display-student-id">...</strong></div>
+        <button class="logout-btn" onclick="logout()">Logout</button>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <nav>
+        <button class="nav-btn active" onclick="switchTab(event, 'dashboard')">Dashboard</button>
+        <button class="nav-btn" onclick="switchTab(event, 'qr')">QR Scanner</button>
+        <button class="nav-btn" onclick="switchTab(event, 'history')">History</button>
+    </nav>
+
+    <div class="container">
+        <!-- Tab 1: Dashboard -->
+        <div id="dashboard" class="tab-content active">
+            <h2>Student Overview</h2>
+            <div class="card">
+                <p>Total Check-ins</p>
+                <h3 id="stat-total">0</h3>
+            </div>
+            <div class="card">
+                <p>Last Attendance Record</p>
+                <h3 id="stat-last">None</h3>
+            </div>
+        </div>
+
+        <!-- Tab 2: Dynamic QR Code -->
+        <div id="qr" class="tab-content">
+            <h2>Attendance QR Code</h2>
+            <div id="qrcode"></div>
+            <div class="timer" id="timer">QR refreshes in 5s</div>
+        </div>
+
+        <!-- Tab 3: History -->
+        <div id="history" class="tab-content">
+            <h2>My Logs</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date & Time</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="history-list">
+                    <tr><td colspan="2">Loading history...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script type="module">
+        import { supabase } from './supabase.js';
+
+        // Check authentication session
+        const studentId = localStorage.getItem('student_id');
+        if (!studentId) {
+            window.location.href = 'index.html';
+        } else {
+            document.getElementById('display-student-id').innerText = studentId;
+        }
+
+        // Global QR Variables
+        let qrcode = new QRCode(document.getElementById("qrcode"), { width: 200, height: 200 });
+        let timeLeft = 5;
+        let timerInterval = null;
+
+        // Dynamic 5s QR Generator (Your specific logic)
+        function generateQR() {
+            const timestamp = (Date.now() / 1000).toFixed(0);
+            const hash = Math.random().toString(36).substring(2, 8);
+            
+            // Format: STUDENT_ID:TIMESTAMP:HASH
+            const token = `${studentId}:${timestamp}:${hash}`;
+            qrcode.makeCode(token);
+            timeLeft = 5;
+        }
+
+        function startTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+            generateQR();
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                document.getElementById("timer").innerText = `QR refreshes in ${timeLeft}s`;
+                if (timeLeft <= 0) {
+                    generateQR();
+                }
+            }, 1000);
+        }
+
+        function stopTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+        }
+
+        // Navigation Switcher
+        window.switchTab = function(e, tabId) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            
+            document.getElementById(tabId).classList.add('active');
+            e.target.classList.add('active');
+
+            if (tabId === 'qr') {
+                startTimer();
+            } else {
+                stopTimer();
+            }
+
+            if (tabId === 'history' || tabId === 'dashboard') {
+                loadLogs();
+            }
+        };
+
+        // Fetch Logs from Supabase for logged in student
+        async function loadLogs() {
+            try {
+                const { data, error } = await supabase
+                    .from('attendance')
+                    .select('*')
+                    .eq('student_id', studentId)
+                    .order('scanned_at', { ascending: false });
+
+                if (error) throw error;
+
+                // Update Stats
+                document.getElementById('stat-total').innerText = data.length;
+                document.getElementById('stat-last').innerText = data.length > 0 
+                    ? new Date(data[0].scanned_at).toLocaleString() 
+                    : 'No records';
+
+                // Update Table
+                const container = document.getElementById('history-list');
+                if (!data || data.length === 0) {
+                    container.innerHTML = `<tr><td colspan="2">No attendance records found.</td></tr>`;
+                    return;
+                }
+
+                container.innerHTML = data.map(log => `
+                    <tr>
+                        <td>${new Date(log.scanned_at).toLocaleString()}</td>
+                        <td><span class="status-badge">${log.status || 'Present'}</span></td>
+                    </tr>
+                `).join('');
+
+            } catch (err) {
+                console.error('Error fetching logs:', err);
+                document.getElementById('history-list').innerHTML = `<tr><td colspan="2" style="color:#ff5555;">Error loading logs</td></tr>`;
+            }
+        }
+
+        // Logout
+        window.logout = function() {
+            localStorage.removeItem('student_id');
+            window.location.href = 'index.html';
+        };
+
+        // Initial Load
+        loadLogs();
+        startTimer();
+    </script>
+</body>
+</html>
