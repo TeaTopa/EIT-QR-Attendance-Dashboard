@@ -3,48 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student QR Generator</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <title>Portal Login - QR Attendance</title>
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; background: #f4f7f6; padding: 20px; }
-        .card { background: white; padding: 30px; border-radius: 12px; display: inline-block; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        input { padding: 10px; font-size: 16px; width: 80%; margin-bottom: 20px; border: 1px solid #ccc; border-radius: 6px; }
-        #qrcode { margin: 20px auto; display: flex; justify-content: center; }
-        .timer { font-weight: bold; color: #e74c3c; margin-top: 10px; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
+        body { background: #1e1e2f; color: white; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
+        .login-card { background: #27293d; padding: 35px; border-radius: 12px; width: 100%; max-width: 400px; box-shadow: 0 4px 15px rgba(0,0,0,0.4); }
+        h1 { color: #00d68f; margin-bottom: 20px; font-size: 24px; text-align: center; }
+        .toggle-box { display: flex; margin-bottom: 25px; background: #1e1e2f; border-radius: 8px; padding: 4px; }
+        .toggle-btn { flex: 1; padding: 10px; border: none; background: transparent; color: #8a8a9e; cursor: pointer; border-radius: 6px; font-weight: bold; }
+        .toggle-btn.active { background: #00d68f; color: #000; }
+        label { font-size: 14px; color: #b0b0c0; display: block; margin-bottom: 8px; }
+        input { width: 100%; padding: 12px; margin-bottom: 20px; border-radius: 6px; border: 1px solid #3d3f58; background: #1e1e2f; color: white; font-size: 16px; }
+        input:focus { outline: none; border-color: #00d68f; }
+        button.submit-btn { width: 100%; padding: 12px; border: none; border-radius: 6px; background: #00d68f; color: black; font-weight: bold; font-size: 16px; cursor: pointer; }
+        button.submit-btn:hover { background: #00b377; }
     </style>
 </head>
 <body>
-    <div class="card">
-        <h2>Attendance QR Code</h2>
-        <input type="text" id="studentId" placeholder="Enter Student ID (e.g. 050327020077)" />
-        <div id="qrcode"></div>
-        <div class="timer" id="timer">QR refreshes in 5s</div>
+
+    <div class="login-card">
+        <h1>Attendance System</h1>
+        
+        <div class="toggle-box">
+            <button class="toggle-btn active" id="btn-student" onclick="setRole('student')">Student</button>
+            <button class="toggle-btn" id="btn-admin" onclick="setRole('admin')">Admin</button>
+        </div>
+
+        <form id="login-form">
+            <div id="input-group">
+                <label id="input-label">Student ID</label>
+                <input type="text" id="user-input" placeholder="e.g. 050327020077" required>
+            </div>
+            <button type="submit" class="submit-btn">Login to Portal</button>
+        </form>
     </div>
 
     <script>
-        let qrcode = new QRCode(document.getElementById("qrcode"), { width: 200, height: 200 });
-        let timeLeft = 5;
+        let currentRole = 'student';
 
-        function generateQR() {
-            const studentId = document.getElementById("studentId").value.trim() || "050327020077";
-            const timestamp = (Date.now() / 1000).toFixed(0);
-            const hash = Math.random().toString(36).substring(2, 8);
-            
-            // Format: STUDENT_ID:TIMESTAMP:HASH
-            const token = `${studentId}:${timestamp}:${hash}`;
-            qrcode.makeCode(token);
-            timeLeft = 5;
+        function setRole(role) {
+            currentRole = role;
+            const btnStudent = document.getElementById('btn-student');
+            const btnAdmin = document.getElementById('btn-admin');
+            const label = document.getElementById('input-label');
+            const input = document.getElementById('user-input');
+
+            if (role === 'student') {
+                btnStudent.classList.add('active');
+                btnAdmin.classList.remove('active');
+                label.innerText = 'Student ID';
+                input.placeholder = 'e.g. 050327020077';
+                input.type = 'text';
+            } else {
+                btnAdmin.classList.add('active');
+                btnStudent.classList.remove('active');
+                label.innerText = 'Admin Passkey';
+                input.placeholder = 'Enter Admin Key';
+                input.type = 'password';
+            }
         }
 
-        setInterval(() => {
-            timeLeft--;
-            document.getElementById("timer").innerText = `QR refreshes in ${timeLeft}s`;
-            if (timeLeft <= 0) {
-                generateQR();
-            }
-        }, 1000);
+        document.getElementById('login-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const value = document.getElementById('user-input').value.trim();
+            if (!value) return;
 
-        generateQR();
+            if (currentRole === 'student') {
+                localStorage.setItem('student_id', value);
+                window.location.href = 'student.html';
+            } else {
+                // simple admin check (replace admin123 with your preferred key)
+                if (value === 'admin123') {
+                    localStorage.setItem('admin_logged', 'true');
+                    window.location.href = 'admin.html';
+                } else {
+                    alert('Invalid Admin Passkey!');
+                }
+            }
+        });
     </script>
 </body>
 </html>
