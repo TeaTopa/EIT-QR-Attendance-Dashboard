@@ -31,7 +31,6 @@
         /* Status Badges */
         .status { padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 12px; display: inline-block; }
         .status-accepted { background: #00d68f; color: black; }
-        .status-rejected { background: #ff5555; color: white; }
         .status-pending { background: #f1c40f; color: black; }
     </style>
 </head>
@@ -45,7 +44,7 @@
     <!-- Global Actions -->
     <div class="top-bar">
         <button class="btn-accept" id="btn-accept-all">Accept All</button>
-        <button class="btn-reject" id="btn-reject-all">Reject All</button>
+        <button class="btn-reject" id="btn-reject-all">Reject All (Delete)</button>
     </div>
 
     <table>
@@ -102,7 +101,6 @@
                 const currentStatus = (log.status || 'Pending').toLowerCase();
                 let badgeClass = 'status-pending';
                 if (currentStatus === 'accepted' || currentStatus === 'present') badgeClass = 'status-accepted';
-                if (currentStatus === 'rejected') badgeClass = 'status-rejected';
 
                 return `
                     <tr>
@@ -111,41 +109,67 @@
                         <td>${log.scanned_at ? new Date(log.scanned_at).toLocaleString() : 'N/A'}</td>
                         <td><span class="status ${badgeClass}">${log.status || 'Pending'}</span></td>
                         <td>
-                            <button class="btn-accept btn-sm" onclick="updateStatus('${log.id}', 'Accepted')">Accept</button>
-                            <button class="btn-reject btn-sm" onclick="updateStatus('${log.id}', 'Rejected')">Reject</button>
+                            <button class="btn-accept btn-sm" onclick="acceptLog('${log.id}')">Accept</button>
+                            <button class="btn-reject btn-sm" onclick="rejectAndDelete('${log.id}')">Reject</button>
                         </td>
                     </tr>
                 `;
             }).join('');
         }
 
-        // Update individual log status
-        window.updateStatus = async function(id, newStatus) {
+        // Action: Accept individual log
+        window.acceptLog = async function(id) {
             const { error } = await supabase
                 .from('attendance')
-                .update({ status: newStatus })
+                .update({ status: 'Accepted' })
                 .eq('id', id);
 
             if (error) {
-                alert(`Failed to update log ${id}: ` + error.message);
+                alert(`Failed to accept log ${id}: ` + error.message);
             }
         };
 
-        // Update status for all loaded rows
-        async function updateAllStatus(newStatus) {
+        // Action: Reject individual log (Deletes record from database)
+        window.rejectAndDelete = async function(id) {
             const { error } = await supabase
                 .from('attendance')
-                .update({ status: newStatus })
-                .neq('id', 0); // Updates all matching rows
+                .delete()
+                .eq('id', id);
 
             if (error) {
-                alert(`Failed to update all logs: ` + error.message);
+                alert(`Failed to delete log ${id}: ` + error.message);
+            }
+        };
+
+        // Action: Accept All logs
+        async function acceptAllLogs() {
+            const { error } = await supabase
+                .from('attendance')
+                .update({ status: 'Accepted' })
+                .neq('id', 0);
+
+            if (error) {
+                alert(`Failed to accept all logs: ` + error.message);
             }
         }
 
-        // Event Listeners for Accept All / Reject All
-        document.getElementById('btn-accept-all').addEventListener('click', () => updateAllStatus('Accepted'));
-        document.getElementById('btn-reject-all').addEventListener('click', () => updateAllStatus('Rejected'));
+        // Action: Reject All logs (Deletes all records from database)
+        async function rejectAllLogs() {
+            if (!confirm("Are you sure you want to reject and delete all attendance logs?")) return;
+
+            const { error } = await supabase
+                .from('attendance')
+                .delete()
+                .neq('id', 0);
+
+            if (error) {
+                alert(`Failed to delete all logs: ` + error.message);
+            }
+        }
+
+        // Event Listeners
+        document.getElementById('btn-accept-all').addEventListener('click', acceptAllLogs);
+        document.getElementById('btn-reject-all').addEventListener('click', rejectAllLogs);
 
         // Logout action
         window.logout = function() {
@@ -153,7 +177,7 @@
             window.location.href = 'index.html';
         };
 
-        // Realtime Subscription: Listen for both INSERT and UPDATE events
+        // Realtime Subscription: Listen for INSERT, UPDATE, and DELETE events
         supabase.channel('schema-db-changes')
             .on('postgres_changes', { event: '*', schema: 'public', table: 'attendance' }, () => {
                 fetchAttendance();
