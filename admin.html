@@ -38,7 +38,7 @@
 
     <header>
         <h1>Live Attendance Logs</h1>
-        <button class="btn-logout" onclick="logout()">Logout</button>
+        <button class="btn-logout" id="btn-logout">Logout</button>
     </header>
 
     <!-- Global Actions -->
@@ -127,7 +127,7 @@
             if (error) {
                 alert(`Failed to accept log ${id}: ` + error.message);
             } else {
-                fetchAttendance(); // Re-fetch logs immediately
+                fetchAttendance();
             }
         };
 
@@ -141,7 +141,7 @@
             if (error) {
                 alert(`Failed to delete log ${id}: ` + error.message);
             } else {
-                fetchAttendance(); // Re-fetch logs immediately
+                fetchAttendance();
             }
         };
 
@@ -155,7 +155,7 @@
             if (error) {
                 alert(`Failed to accept all logs: ` + error.message);
             } else {
-                fetchAttendance(); // Re-fetch logs immediately
+                fetchAttendance();
             }
         }
 
@@ -171,19 +171,20 @@
             if (error) {
                 alert(`Failed to delete all logs: ` + error.message);
             } else {
-                fetchAttendance(); // Re-fetch logs immediately
+                fetchAttendance();
             }
+        }
+
+        // Logout action
+        function logout() {
+            localStorage.removeItem('admin_logged');
+            window.location.href = 'index.html';
         }
 
         // Event Listeners
         document.getElementById('btn-accept-all').addEventListener('click', acceptAllLogs);
         document.getElementById('btn-reject-all').addEventListener('click', rejectAllLogs);
-
-        // Logout action
-        window.logout = function() {
-            localStorage.removeItem('admin_logged');
-            window.location.href = 'index.html';
-        };
+        document.getElementById('btn-logout').addEventListener('click', logout);
 
         // Realtime Subscription: Listen for INSERT, UPDATE, and DELETE events from other tabs/devices
         supabase.channel('schema-db-changes')
