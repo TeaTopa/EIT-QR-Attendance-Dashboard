@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -32,8 +31,75 @@
         .card p { font-size: 13px; color: #b0b0c0; margin-bottom: 4px; }
         .card h3 { font-size: 18px; color: #ffffff; }
 
-        /* QR Code Styling */
-        #qrcode { margin: 20px auto; display: flex; justify-content: center; background: white; padding: 15px; border-radius: 8px; width: fit-content; }
+        /* QR Code Container & Success Overlay */
+        .qr-wrapper {
+            position: relative;
+            margin: 20px auto;
+            width: 230px;
+            height: 230px;
+        }
+
+        #qrcode {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .scan-success-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 214, 143, 0.95);
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: #1e1e2f;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+            z-index: 10;
+        }
+
+        .scan-success-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .checkmark-icon {
+            width: 60px;
+            height: 60px;
+            background: #1e1e2f;
+            color: #00d68f;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .scan-success-overlay p {
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0); }
+            100% { transform: scale(1); }
+        }
+
         .timer { font-weight: bold; color: #e74c3c; margin-top: 10px; font-size: 14px; }
 
         /* History Table */
@@ -75,7 +141,13 @@
         <!-- Tab 2: Dynamic QR Code -->
         <div id="qr" class="tab-content">
             <h2>Attendance QR Code</h2>
-            <div id="qrcode"></div>
+            <div class="qr-wrapper">
+                <div id="qrcode"></div>
+                <div id="scan-success" class="scan-success-overlay">
+                    <div class="checkmark-icon">✓</div>
+                    <p>Scanned Successfully!</p>
+                </div>
+            </div>
             <div class="timer" id="timer">QR refreshes in 5s</div>
         </div>
 
@@ -112,7 +184,7 @@
         let timeLeft = 5;
         let timerInterval = null;
 
-        // Dynamic 5s QR Generator (Your specific logic)
+        // Dynamic 5s QR Generator
         function generateQR() {
             const timestamp = (Date.now() / 1000).toFixed(0);
             const hash = Math.random().toString(36).substring(2, 8);
@@ -137,6 +209,19 @@
 
         function stopTimer() {
             if (timerInterval) clearInterval(timerInterval);
+        }
+
+        // Display checkmark overlay upon successful scan
+        function triggerSuccessAnimation() {
+            stopTimer();
+            const overlay = document.getElementById('scan-success');
+            overlay.classList.add('show');
+            document.getElementById("timer").innerText = "Attendance Recorded!";
+
+            setTimeout(() => {
+                overlay.classList.remove('show');
+                startTimer();
+            }, 3000);
         }
 
         // Navigation Switcher
@@ -200,6 +285,24 @@
             localStorage.removeItem('student_id');
             window.location.href = 'index.html';
         };
+
+        // Realtime Subscription: Listen for new attendance scans for this specific student
+        supabase
+            .channel('student-attendance-channel')
+            .on(
+                'postgres_changes',
+                {
+                    event: 'INSERT',
+                    schema: 'public',
+                    table: 'attendance',
+                    filter: `student_id=eq.${studentId}`
+                },
+                (payload) => {
+                    triggerSuccessAnimation();
+                    loadLogs();
+                }
+            )
+            .subscribe();
 
         // Initial Load
         loadLogs();
