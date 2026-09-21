@@ -126,6 +126,8 @@
 
             if (error) {
                 alert(`Failed to accept log ${id}: ` + error.message);
+            } else {
+                fetchAttendance(); // Re-fetch logs immediately
             }
         };
 
@@ -138,6 +140,8 @@
 
             if (error) {
                 alert(`Failed to delete log ${id}: ` + error.message);
+            } else {
+                fetchAttendance(); // Re-fetch logs immediately
             }
         };
 
@@ -150,6 +154,8 @@
 
             if (error) {
                 alert(`Failed to accept all logs: ` + error.message);
+            } else {
+                fetchAttendance(); // Re-fetch logs immediately
             }
         }
 
@@ -164,6 +170,8 @@
 
             if (error) {
                 alert(`Failed to delete all logs: ` + error.message);
+            } else {
+                fetchAttendance(); // Re-fetch logs immediately
             }
         }
 
@@ -177,7 +185,7 @@
             window.location.href = 'index.html';
         };
 
-        // Realtime Subscription: Listen for INSERT, UPDATE, and DELETE events
+        // Realtime Subscription: Listen for INSERT, UPDATE, and DELETE events from other tabs/devices
         supabase.channel('schema-db-changes')
             .on('postgres_changes', { event: '*', schema: 'public', table: 'attendance' }, () => {
                 fetchAttendance();
