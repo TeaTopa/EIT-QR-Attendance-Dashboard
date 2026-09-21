@@ -5,15 +5,49 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Attendance Dashboard</title>
     <style>
-        body { font-family: Arial, sans-serif; background: #1e1e2f; color: white; padding: 30px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #27293d; border-radius: 8px; overflow: hidden; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
+        body { background: #1e1e2f; color: white; padding: 30px; }
+        
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        h1 { color: #00d68f; font-size: 24px; }
+        
+        .top-bar { display: flex; gap: 10px; margin-bottom: 20px; }
+        
+        /* Buttons */
+        button { border: none; padding: 8px 14px; border-radius: 6px; font-weight: bold; cursor: pointer; transition: opacity 0.2s; }
+        button:hover { opacity: 0.85; }
+        
+        .btn-accept { background: #00d68f; color: #000; }
+        .btn-reject { background: #ff5555; color: #fff; }
+        .btn-logout { background: #3d3f58; color: #fff; }
+        
+        .btn-sm { padding: 5px 10px; font-size: 12px; margin-right: 5px; }
+
+        /* Table */
+        table { width: 100%; border-collapse: collapse; background: #27293d; border-radius: 8px; overflow: hidden; }
         th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #3d3f58; }
         th { background: #32354a; color: #00d68f; }
-        .status { background: #00d68f; color: black; padding: 4px 8px; border-radius: 4px; font-weight: bold; }
+        
+        /* Status Badges */
+        .status { padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 12px; display: inline-block; }
+        .status-accepted { background: #00d68f; color: black; }
+        .status-rejected { background: #ff5555; color: white; }
+        .status-pending { background: #f1c40f; color: black; }
     </style>
 </head>
 <body>
-    <h1>Live Attendance Logs</h1>
+
+    <header>
+        <h1>Live Attendance Logs</h1>
+        <button class="btn-logout" onclick="logout()">Logout</button>
+    </header>
+
+    <!-- Global Actions -->
+    <div class="top-bar">
+        <button class="btn-accept" id="btn-accept-all">Accept All</button>
+        <button class="btn-reject" id="btn-reject-all">Reject All</button>
+    </div>
+
     <table>
         <thead>
             <tr>
@@ -21,43 +55,112 @@
                 <th>Student ID</th>
                 <th>Scanned At</th>
                 <th>Status</th>
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody id="attendance-list">
-            <tr><td colspan="4">Loading logs...</td></tr>
+            <tr><td colspan="5">Loading logs...</td></tr>
         </tbody>
     </table>
 
     <script type="module">
         import { supabase } from './supabase.js';
 
+        // Session Check
+        if (localStorage.getItem('admin_logged') !== 'true') {
+            window.location.href = 'index.html';
+        }
+
         const listContainer = document.getElementById('attendance-list');
 
+        // Fetch logs
         async function fetchAttendance() {
-            const { data, error } = await supabase.from('attendance').select('*').order('scanned_at', { ascending: false }).limit(20);
-            if (data) {
+            try {
+                const { data, error } = await supabase
+                    .from('attendance')
+                    .select('*')
+                    .order('scanned_at', { ascending: false })
+                    .limit(20);
+
+                if (error) throw error;
+
+                if (!data || data.length === 0) {
+                    listContainer.innerHTML = `<tr><td colspan="5">No attendance logs found.</td></tr>`;
+                    return;
+                }
+
                 renderLogs(data);
+            } catch (err) {
+                console.error('Error loading attendance:', err);
+                listContainer.innerHTML = `<tr><td colspan="5" style="color: #ff5555;">Error loading logs from Supabase</td></tr>`;
             }
         }
 
+        // Render table records
         function renderLogs(logs) {
-            listContainer.innerHTML = logs.map(log => `
-                <tr>
-                    <td>${log.id}</td>
-                    <td><strong>${log.student_id}</strong></td>
-                    <td>${new Date(log.scanned_at).toLocaleString()}</td>
-                    <td><span class="status">${log.status}</span></td>
-                </tr>
-            `).join('');
+            listContainer.innerHTML = logs.map(log => {
+                const currentStatus = (log.status || 'Pending').toLowerCase();
+                let badgeClass = 'status-pending';
+                if (currentStatus === 'accepted' || currentStatus === 'present') badgeClass = 'status-accepted';
+                if (currentStatus === 'rejected') badgeClass = 'status-rejected';
+
+                return `
+                    <tr>
+                        <td>${log.id}</td>
+                        <td><strong>${log.student_id}</strong></td>
+                        <td>${log.scanned_at ? new Date(log.scanned_at).toLocaleString() : 'N/A'}</td>
+                        <td><span class="status ${badgeClass}">${log.status || 'Pending'}</span></td>
+                        <td>
+                            <button class="btn-accept btn-sm" onclick="updateStatus('${log.id}', 'Accepted')">Accept</button>
+                            <button class="btn-reject btn-sm" onclick="updateStatus('${log.id}', 'Rejected')">Reject</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
         }
 
-        // Realtime Subscription: Refresh logs on new scans
+        // Update individual log status
+        window.updateStatus = async function(id, newStatus) {
+            const { error } = await supabase
+                .from('attendance')
+                .update({ status: newStatus })
+                .eq('id', id);
+
+            if (error) {
+                alert(`Failed to update log ${id}: ` + error.message);
+            }
+        };
+
+        // Update status for all loaded rows
+        async function updateAllStatus(newStatus) {
+            const { error } = await supabase
+                .from('attendance')
+                .update({ status: newStatus })
+                .neq('id', 0); // Updates all matching rows
+
+            if (error) {
+                alert(`Failed to update all logs: ` + error.message);
+            }
+        }
+
+        // Event Listeners for Accept All / Reject All
+        document.getElementById('btn-accept-all').addEventListener('click', () => updateAllStatus('Accepted'));
+        document.getElementById('btn-reject-all').addEventListener('click', () => updateAllStatus('Rejected'));
+
+        // Logout action
+        window.logout = function() {
+            localStorage.removeItem('admin_logged');
+            window.location.href = 'index.html';
+        };
+
+        // Realtime Subscription: Listen for both INSERT and UPDATE events
         supabase.channel('schema-db-changes')
-            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'attendance' }, (payload) => {
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'attendance' }, () => {
                 fetchAttendance();
             })
             .subscribe();
 
+        // Initial Load
         fetchAttendance();
     </script>
 </body>
