@@ -536,11 +536,11 @@
                 <div
                     class="timer"
                     id="timer">
-                    QR refreshes in 5s
+                    QR valid for 5s
                 </div>
 
                 <p class="qr-info">
-                    This QR code automatically refreshes every 5 seconds.
+                    Each QR code is valid for 5 seconds and remains visible for 3 seconds after expiry.
                 </p>
 
             </div>
@@ -667,9 +667,18 @@
                 }
             );
 
+        /*
+         * QR validity:
+         * 5 seconds valid
+         * 3 seconds displayed after expiry
+         */
+
         let timeLeft = 5;
+        let expiredTimeLeft = 3;
 
         let timerInterval = null;
+
+        let qrExpired = false;
 
 
         /* =========================
@@ -713,12 +722,19 @@
             }, 150);
 
 
+            /*
+             * Start a new 5-second
+             * validity period.
+             */
+
             timeLeft = 5;
+            expiredTimeLeft = 3;
+            qrExpired = false;
 
             document
                 .getElementById("timer")
                 .innerText =
-                "QR refreshes in 5s";
+                "QR valid for 5s";
         }
 
 
@@ -734,19 +750,78 @@
 
             }
 
+            /*
+             * Generate the first QR.
+             */
+
             generateQR();
+
 
             timerInterval =
                 setInterval(() => {
 
-                    timeLeft--;
+                    /*
+                     * =========================
+                     * PHASE 1
+                     * QR is valid for 5 seconds
+                     * =========================
+                     */
+
+                    if (!qrExpired) {
+
+                        timeLeft--;
+
+                        document
+                            .getElementById("timer")
+                            .innerText =
+                            `QR valid for ${timeLeft}s`;
+
+
+                        /*
+                         * QR has now expired.
+                         * DO NOT generate a new QR yet.
+                         */
+
+                        if (timeLeft <= 0) {
+
+                            qrExpired = true;
+
+                            expiredTimeLeft = 3;
+
+                            document
+                                .getElementById("timer")
+                                .innerText =
+                                "QR expired — changing in 3s";
+                        }
+
+                        return;
+                    }
+
+
+                    /*
+                     * =========================
+                     * PHASE 2
+                     * QR is expired but remains
+                     * visible for another 3 seconds
+                     * =========================
+                     */
+
+                    expiredTimeLeft--;
 
                     document
                         .getElementById("timer")
                         .innerText =
-                        `QR refreshes in ${timeLeft}s`;
+                        `QR expired — changing in ${expiredTimeLeft}s`;
 
-                    if (timeLeft <= 0) {
+
+                    /*
+                     * =========================
+                     * PHASE 3
+                     * Generate new QR
+                     * =========================
+                     */
+
+                    if (expiredTimeLeft <= 0) {
 
                         generateQR();
 
