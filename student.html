@@ -477,7 +477,7 @@
             document.getElementById("timer").innerText = `QR refreshes in ${timeLeft}s`;
         }
 
-        fn_startTimer = function startTimer() {
+        function startTimer() {
             if (timerInterval) clearInterval(timerInterval);
             generateQR();
 
@@ -512,7 +512,7 @@
         window.closeSuccessModal = function() {
             const notification = document.getElementById('success-notification');
             notification.classList.remove('show');
-            fn_startTimer();
+            startTimer();
         }
 
         window.switchTab = function(e, tabId) {
@@ -523,7 +523,7 @@
             e.currentTarget.classList.add('active');
 
             if (tabId === 'attendance') {
-                fn_startTimer();
+                startTimer();
             } else {
                 stopTimer();
             }
@@ -589,7 +589,7 @@
             .subscribe();
 
         loadLogs();
-        fn_startTimer();
+        startTimer();
     </script>
 </body>
 </html>
