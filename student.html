@@ -3,11 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>Student Attendance Portal</title>
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-
     <style>
         * {
             box-sizing: border-box;
@@ -25,7 +22,6 @@
         /* =========================
            HEADER
         ========================= */
-
         header {
             background: #27293d;
             padding: 15px 20px;
@@ -62,7 +58,6 @@
         /* =========================
            NAVIGATION
         ========================= */
-
         nav {
             background: #27293d;
             display: flex;
@@ -96,7 +91,6 @@
         /* =========================
            MAIN CONTAINER
         ========================= */
-
         .container {
             width: 100%;
             max-width: 520px;
@@ -119,7 +113,6 @@
         /* =========================
            HEADINGS
         ========================= */
-
         h2 {
             color: #00d68f;
             margin-bottom: 20px;
@@ -136,7 +129,6 @@
         /* =========================
            ATTENDANCE SUMMARY
         ========================= */
-
         .stats {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -165,7 +157,6 @@
         /* =========================
            LIVE INDICATOR
         ========================= */
-
         .live-status {
             display: flex;
             justify-content: center;
@@ -185,26 +176,14 @@
         }
 
         @keyframes livePulse {
-            0% {
-                opacity: 1;
-                transform: scale(1);
-            }
-
-            50% {
-                opacity: 0.4;
-                transform: scale(1.3);
-            }
-
-            100% {
-                opacity: 1;
-                transform: scale(1);
-            }
+            0% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(1.3); }
+            100% { opacity: 1; transform: scale(1); }
         }
 
         /* =========================
            QR CODE
         ========================= */
-
         .qr-section {
             text-align: center;
         }
@@ -242,7 +221,7 @@
 
         .timer {
             font-weight: bold;
-            color: #e74c3c;
+            color: #00d68f;
             margin-top: 12px;
             font-size: 14px;
         }
@@ -250,23 +229,16 @@
         /* =========================
            SUCCESS NOTIFICATION
         ========================= */
-
         .success-notification {
             position: fixed;
             inset: 0;
             background: rgba(10, 10, 20, 0.75);
-
             display: flex;
             justify-content: center;
             align-items: center;
-
             opacity: 0;
             visibility: hidden;
-
-            transition:
-                opacity 0.3s ease,
-                visibility 0.3s ease;
-
+            transition: opacity 0.3s ease, visibility 0.3s ease;
             z-index: 9999;
         }
 
@@ -278,18 +250,13 @@
         .success-box {
             width: calc(100% - 40px);
             max-width: 360px;
-
             background: #27293d;
             border: 1px solid #3d3f58;
             border-top: 5px solid #00d68f;
-
             border-radius: 16px;
             padding: 30px 25px;
-
             text-align: center;
-
             box-shadow: 0 15px 40px rgba(0,0,0,0.5);
-
             transform: translateY(20px) scale(0.95);
             transition: transform 0.35s ease;
         }
@@ -301,38 +268,23 @@
         .success-icon {
             width: 75px;
             height: 75px;
-
             margin: 0 auto 18px;
-
             border-radius: 50%;
-
             background: rgba(0, 214, 143, 0.12);
             border: 3px solid #00d68f;
-
             display: flex;
             align-items: center;
             justify-content: center;
-
             color: #00d68f;
             font-size: 42px;
             font-weight: bold;
-
-            animation: successPop 0.5s
-                cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            animation: successPop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
         @keyframes successPop {
-            0% {
-                transform: scale(0);
-            }
-
-            70% {
-                transform: scale(1.1);
-            }
-
-            100% {
-                transform: scale(1);
-            }
+            0% { transform: scale(0); }
+            70% { transform: scale(1.1); }
+            100% { transform: scale(1); }
         }
 
         .success-box h3 {
@@ -357,7 +309,6 @@
         /* =========================
            HISTORY TABLE
         ========================= */
-
         .table-wrapper {
             overflow-x: auto;
         }
@@ -368,21 +319,15 @@
             margin-top: 10px;
         }
 
-        th,
-        td {
+        th, td {
             padding: 11px 8px;
             text-align: left;
             border-bottom: 1px solid #3d3f58;
             font-size: 13px;
         }
 
-        th {
-            color: #00d68f;
-        }
-
-        td {
-            color: #d0d0dc;
-        }
+        th { color: #00d68f; }
+        td { color: #d0d0dc; }
 
         .status-badge {
             background: rgba(0, 214, 143, 0.15);
@@ -396,772 +341,231 @@
         /* =========================
            MOBILE
         ========================= */
-
         @media (max-width: 480px) {
-
-            header {
-                padding: 13px 15px;
-            }
-
-            .container {
-                padding: 15px;
-            }
-
-            .tab-content {
-                padding: 20px 15px;
-            }
-
-            .stats {
-                grid-template-columns: 1fr;
-            }
-
-            .qr-wrapper,
-            #qrcode {
-                width: 220px;
-                height: 220px;
-            }
-
-            nav button {
-                padding: 9px 15px;
-            }
+            header { padding: 13px 15px; }
+            .container { padding: 15px; }
+            .tab-content { padding: 20px 15px; }
+            .stats { grid-template-columns: 1fr; }
+            .qr-wrapper, #qrcode { width: 220px; height: 220px; }
+            nav button { padding: 9px 15px; }
         }
     </style>
 </head>
 
 <body>
 
-    <!-- =========================
-         HEADER
-    ========================= -->
-
     <header>
-
         <div class="user-info">
-            Logged in as:
-            <strong id="display-student-id">...</strong>
+            Logged in as: <strong id="display-student-id">...</strong>
         </div>
-
-        <button class="logout-btn" onclick="logout()">
-            Logout
-        </button>
-
+        <button class="logout-btn" onclick="logout()">Logout</button>
     </header>
 
-
-    <!-- =========================
-         NAVIGATION
-    ========================= -->
-
     <nav>
-
-        <button
-            class="nav-btn active"
-            onclick="switchTab(event, 'attendance')">
-            Attendance
-        </button>
-
-        <button
-            class="nav-btn"
-            onclick="switchTab(event, 'history')">
-            History
-        </button>
-
+        <button class="nav-btn active" onclick="switchTab(event, 'attendance')">Attendance</button>
+        <button class="nav-btn" onclick="switchTab(event, 'history')">History</button>
     </nav>
 
-
     <div class="container">
-
-        <!-- =========================
-             ATTENDANCE PAGE
-        ========================= -->
-
+        <!-- Attendance Page -->
         <div id="attendance" class="tab-content active">
-
             <h2>Attendance</h2>
-
-            <p class="section-subtitle">
-                Scan this QR code to record your attendance.
-            </p>
-
-
-            <!-- Statistics -->
+            <p class="section-subtitle">Scan this QR code to record your attendance.</p>
 
             <div class="stats">
-
                 <div class="stat-card">
-
                     <p>Total Check-ins</p>
-
-                    <h3 id="stat-total">
-                        0
-                    </h3>
-
+                    <h3 id="stat-total">0</h3>
                 </div>
-
-
                 <div class="stat-card">
-
                     <p>Last Attendance</p>
-
-                    <h3 id="stat-last">
-                        None
-                    </h3>
-
+                    <h3 id="stat-last">None</h3>
                 </div>
-
             </div>
-
-
-            <!-- Live Status -->
 
             <div class="live-status">
-
                 <span class="live-dot"></span>
-
                 Attendance system is live
-
             </div>
-
-
-            <!-- QR -->
 
             <div class="qr-section">
-
                 <div class="qr-wrapper">
-
                     <div id="qrcode"></div>
-
                 </div>
-
-                <div
-                    class="timer"
-                    id="timer">
-                    QR valid for 5s
-                </div>
-
-                <p class="qr-info">
-                    Each QR code is valid for 5 seconds and remains visible for 3 seconds after expiry.
-                </p>
-
+                <div class="timer" id="timer">QR refreshes in 5s</div>
+                <p class="qr-info">Each QR code is valid for 5 seconds and automatically rotates.</p>
             </div>
-
         </div>
 
-
-        <!-- =========================
-             HISTORY PAGE
-        ========================= -->
-
+        <!-- History Page -->
         <div id="history" class="tab-content">
-
             <h2>Attendance History</h2>
-
-            <p class="section-subtitle">
-                Your previous attendance records.
-            </p>
-
+            <p class="section-subtitle">Your previous attendance records.</p>
             <div class="table-wrapper">
-
                 <table>
-
                     <thead>
-
                         <tr>
                             <th>Date & Time</th>
                             <th>Status</th>
                         </tr>
-
                     </thead>
-
                     <tbody id="history-list">
-
-                        <tr>
-                            <td colspan="2">
-                                Loading history...
-                            </td>
-                        </tr>
-
+                        <tr><td colspan="2">Loading history...</td></tr>
                     </tbody>
-
                 </table>
-
             </div>
-
         </div>
-
     </div>
 
-
-    <!-- =========================
-         SUCCESS NOTIFICATION
-    ========================= -->
-
-    <div
-        id="success-notification"
-        class="success-notification">
-
+    <!-- Success Notification (Stays Open) -->
+    <div id="success-notification" class="success-notification">
         <div class="success-box">
-
-            <div class="success-icon">
-                ✓
-            </div>
-
-            <h3>
-                Attendance Recorded
-            </h3>
-
-            <p>
-                Your attendance has been successfully recorded.
-            </p>
-
-            <p
-                class="success-time"
-                id="success-time">
-                --
-            </p>
-
+            <div class="success-icon">✓</div>
+            <h3>Attendance Recorded</h3>
+            <p>Your attendance has been successfully recorded.</p>
+            <p class="success-time" id="success-time">--</p>
         </div>
-
     </div>
-
-
-    <!-- =========================
-         JAVASCRIPT
-    ========================= -->
 
     <script type="module">
-
         import { supabase } from './supabase.js';
 
-
-        /* =========================
-           AUTHENTICATION
-        ========================= */
-
-        const studentId =
-            localStorage.getItem('student_id');
-
+        const studentId = localStorage.getItem('student_id');
         if (!studentId) {
-
             window.location.href = 'index.html';
-
         } else {
-
-            document
-                .getElementById('display-student-id')
-                .innerText = studentId;
-
+            document.getElementById('display-student-id').innerText = studentId;
         }
 
-
-        /* =========================
-           QR VARIABLES
-        ========================= */
-
-        let qrcode =
-            new QRCode(
-                document.getElementById("qrcode"),
-                {
-                    width: 200,
-                    height: 200
-                }
-            );
-
-        /*
-         * QR validity:
-         * 5 seconds valid
-         * 3 seconds displayed after expiry
-         */
-
+        let qrcode = new QRCode(document.getElementById("qrcode"), { width: 200, height: 200 });
         let timeLeft = 5;
-        let expiredTimeLeft = 3;
-
         let timerInterval = null;
 
-        let qrExpired = false;
-
-
-        /* =========================
-           GENERATE QR
-        ========================= */
-
         function generateQR() {
-
-            const qrElement =
-                document.getElementById("qrcode");
-
-            /*
-             * Small visual animation
-             * when QR refreshes.
-             */
-
+            const qrElement = document.getElementById("qrcode");
             qrElement.classList.add("refreshing");
 
             setTimeout(() => {
-
-                const timestamp =
-                    Math.floor(Date.now() / 1000);
-
-                const hash =
-                    Math.random()
-                        .toString(36)
-                        .substring(2, 8);
-
-                /*
-                 * Format:
-                 * STUDENT_ID:TIMESTAMP:HASH
-                 */
-
-                const token =
-                    `${studentId}:${timestamp}:${hash}`;
-
+                const timestamp = Math.floor(Date.now() / 1000);
+                const hash = Math.random().toString(36).substring(2, 8);
+                const token = `${studentId}:${timestamp}:${hash}`;
+                
                 qrcode.makeCode(token);
-
                 qrElement.classList.remove("refreshing");
-
             }, 150);
 
-
-            /*
-             * Start a new 5-second
-             * validity period.
-             */
-
             timeLeft = 5;
-            expiredTimeLeft = 3;
-            qrExpired = false;
-
-            document
-                .getElementById("timer")
-                .innerText =
-                "QR valid for 5s";
+            document.getElementById("timer").innerText = `QR refreshes in ${timeLeft}s`;
         }
-
-
-        /* =========================
-           TIMER
-        ========================= */
 
         function startTimer() {
-
-            if (timerInterval) {
-
-                clearInterval(timerInterval);
-
-            }
-
-            /*
-             * Generate the first QR.
-             */
-
+            if (timerInterval) clearInterval(timerInterval);
             generateQR();
 
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                document.getElementById("timer").innerText = `QR refreshes in ${timeLeft}s`;
 
-            timerInterval =
-                setInterval(() => {
-
-                    /*
-                     * =========================
-                     * PHASE 1
-                     * QR is valid for 5 seconds
-                     * =========================
-                     */
-
-                    if (!qrExpired) {
-
-                        timeLeft--;
-
-                        document
-                            .getElementById("timer")
-                            .innerText =
-                            `QR valid for ${timeLeft}s`;
-
-
-                        /*
-                         * QR has now expired.
-                         * DO NOT generate a new QR yet.
-                         */
-
-                        if (timeLeft <= 0) {
-
-                            qrExpired = true;
-
-                            expiredTimeLeft = 3;
-
-                            document
-                                .getElementById("timer")
-                                .innerText =
-                                "QR expired — changing in 3s";
-                        }
-
-                        return;
-                    }
-
-
-                    /*
-                     * =========================
-                     * PHASE 2
-                     * QR is expired but remains
-                     * visible for another 3 seconds
-                     * =========================
-                     */
-
-                    expiredTimeLeft--;
-
-                    document
-                        .getElementById("timer")
-                        .innerText =
-                        `QR expired — changing in ${expiredTimeLeft}s`;
-
-
-                    /*
-                     * =========================
-                     * PHASE 3
-                     * Generate new QR
-                     * =========================
-                     */
-
-                    if (expiredTimeLeft <= 0) {
-
-                        generateQR();
-
-                    }
-
-                }, 1000);
+                if (timeLeft <= 0) {
+                    generateQR();
+                }
+            }, 1000);
         }
 
-
         function stopTimer() {
-
             if (timerInterval) {
-
                 clearInterval(timerInterval);
-
                 timerInterval = null;
-
             }
         }
 
-
-        /* =========================
-           SUCCESS NOTIFICATION
-        ========================= */
-
+        // Trigger permanent success modal
         function triggerSuccessAnimation() {
-
             stopTimer();
 
+            const notification = document.getElementById('success-notification');
+            const currentTime = new Date().toLocaleString();
 
-            const notification =
-                document.getElementById(
-                    'success-notification'
-                );
-
-
-            const currentTime =
-                new Date().toLocaleString();
-
-
-            document
-                .getElementById('success-time')
-                .innerText =
-                currentTime;
-
-
+            document.getElementById('success-time').innerText = currentTime;
             notification.classList.add('show');
-
-
-            document
-                .getElementById("timer")
-                .innerText =
-                "Attendance Recorded!";
-
-
-            /*
-             * Keep notification visible
-             * for 3 seconds.
-             */
-
-            setTimeout(() => {
-
-                notification.classList.remove('show');
-
-                startTimer();
-
-            }, 3000);
+            document.getElementById("timer").innerText = "Attendance Recorded!";
         }
 
+        window.switchTab = function(e, tabId) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
 
-        /* =========================
-           TAB SWITCHING
-        ========================= */
+            document.getElementById(tabId).classList.add('active');
+            e.currentTarget.classList.add('active');
 
-        window.switchTab =
-            function(e, tabId) {
+            if (tabId === 'attendance') {
+                startTimer();
+            } else {
+                stopTimer();
+            }
 
-                document
-                    .querySelectorAll('.tab-content')
-                    .forEach(tab => {
-
-                        tab.classList.remove('active');
-
-                    });
-
-
-                document
-                    .querySelectorAll('.nav-btn')
-                    .forEach(btn => {
-
-                        btn.classList.remove('active');
-
-                    });
-
-
-                document
-                    .getElementById(tabId)
-                    .classList.add('active');
-
-
-                e.currentTarget
-                    .classList.add('active');
-
-
-                /*
-                 * QR only runs while
-                 * Attendance page is open.
-                 */
-
-                if (tabId === 'attendance') {
-
-                    startTimer();
-
-                } else {
-
-                    stopTimer();
-
-                }
-
-
-                /*
-                 * Refresh attendance
-                 * information.
-                 */
-
-                loadLogs();
-            };
-
-
-        /* =========================
-           LOAD ATTENDANCE LOGS
-        ========================= */
+            loadLogs();
+        };
 
         async function loadLogs() {
-
             try {
-
-                const {
-                    data,
-                    error
-                } = await supabase
-
+                const { data, error } = await supabase
                     .from('attendance')
-
                     .select('*')
+                    .eq('student_id', studentId)
+                    .order('scanned_at', { ascending: false });
 
-                    .eq(
-                        'student_id',
-                        studentId
-                    )
+                if (error) throw error;
 
-                    .order(
-                        'scanned_at',
-                        {
-                            ascending: false
-                        }
-                    );
+                document.getElementById('stat-total').innerText = data.length;
+                document.getElementById('stat-last').innerText = data.length > 0 
+                    ? new Date(data[0].scanned_at).toLocaleString() 
+                    : 'No records';
 
-
-                if (error) {
-
-                    throw error;
-
-                }
-
-
-                /* =========================
-                   UPDATE STATISTICS
-                ========================= */
-
-                document
-                    .getElementById('stat-total')
-                    .innerText =
-                    data.length;
-
-
-                document
-                    .getElementById('stat-last')
-                    .innerText =
-
-                    data.length > 0
-
-                        ? new Date(
-                            data[0].scanned_at
-                          ).toLocaleString()
-
-                        : 'No records';
-
-
-                /* =========================
-                   UPDATE HISTORY
-                ========================= */
-
-                const container =
-                    document.getElementById(
-                        'history-list'
-                    );
-
-
+                const container = document.getElementById('history-list');
                 if (!data || data.length === 0) {
-
-                    container.innerHTML = `
-                        <tr>
-                            <td colspan="2">
-                                No attendance records found.
-                            </td>
-                        </tr>
-                    `;
-
+                    container.innerHTML = `<tr><td colspan="2">No attendance records found.</td></tr>`;
                     return;
                 }
 
-
-                container.innerHTML =
-
-                    data.map(log => `
-
-                        <tr>
-
-                            <td>
-                                ${new Date(
-                                    log.scanned_at
-                                ).toLocaleString()}
-                            </td>
-
-                            <td>
-
-                                <span class="status-badge">
-                                    ${log.status || 'Present'}
-                                </span>
-
-                            </td>
-
-                        </tr>
-
-                    `).join('');
-
-            }
-
-            catch (err) {
-
-                console.error(
-                    'Error fetching logs:',
-                    err
-                );
-
-
-                document
-                    .getElementById('history-list')
-                    .innerHTML = `
-
+                container.innerHTML = data.map(log => `
                     <tr>
-
-                        <td
-                            colspan="2"
-                            style="color:#ff5555;">
-
-                            Error loading logs
-
-                        </td>
-
+                        <td>${new Date(log.scanned_at).toLocaleString()}</td>
+                        <td><span class="status-badge">${log.status || 'Present'}</span></td>
                     </tr>
-                `;
+                `).join('');
+
+            } catch (err) {
+                console.error('Error fetching logs:', err);
+                document.getElementById('history-list').innerHTML = `<tr><td colspan="2" style="color:#ff5555;">Error loading logs</td></tr>`;
             }
         }
 
+        window.logout = function() {
+            localStorage.removeItem('student_id');
+            window.location.href = 'index.html';
+        };
 
-        /* =========================
-           LOGOUT
-        ========================= */
-
-        window.logout =
-            function() {
-
-                localStorage.removeItem(
-                    'student_id'
-                );
-
-                window.location.href =
-                    'index.html';
-            };
-
-
-        /* =========================
-           REALTIME ATTENDANCE
-        ========================= */
-
+        // Realtime Subscription
         supabase
-
-            .channel(
-                'student-attendance-channel'
-            )
-
+            .channel('student-attendance-channel')
             .on(
-
                 'postgres_changes',
-
                 {
                     event: 'INSERT',
-
                     schema: 'public',
-
                     table: 'attendance',
-
-                    filter:
-                        `student_id=eq.${studentId}`
+                    filter: `student_id=eq.${studentId}`
                 },
-
                 (payload) => {
-
-                    /*
-                     * Show visual notification.
-                     */
-
                     triggerSuccessAnimation();
-
-
-                    /*
-                     * Refresh statistics
-                     * and history.
-                     */
-
                     loadLogs();
-
                 }
-
             )
-
             .subscribe();
 
-
-        /* =========================
-           INITIAL LOAD
-        ========================= */
-
         loadLogs();
-
         startTimer();
-
     </script>
-
 </body>
 </html>
